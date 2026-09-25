@@ -1,135 +1,170 @@
+import Link from 'next/link';
 import {
   ArrowDownRight,
   ArrowRight,
   ArrowUpRight,
+  Atom,
+  BookOpen,
   BookOpenCheck,
+  BrainCircuit,
+  ChartNoAxesCombined,
   Check,
+  ChevronDown,
   CircleHelp,
+  Clock3,
   Compass,
-  Flame,
+  FlaskConical,
   GraduationCap,
-  MoveUpRight,
+  Lightbulb,
+  LockKeyhole,
+  MessageCircleQuestion,
+  PenLine,
+  ShieldCheck,
   Sparkles,
   Target,
-  Timer,
+  TrendingUp,
 } from 'lucide-react';
 
 const steps = [
-  { number: '01', title: 'Find your starting point', detail: 'A quick diagnostic maps what you know—and what to work on next.' },
-  { number: '02', title: 'Practice with a purpose', detail: 'Get original, ACT-style questions picked for your goals.' },
-  { number: '03', title: 'Understand every answer', detail: 'Clear explanations turn wrong answers into useful progress.' },
+  { number: '01', title: 'Diagnose', description: 'See where you are today with a quick, focused baseline across ACT sections.', icon: Target },
+  { number: '02', title: 'Practice', description: 'Work on the skills that will make the biggest difference to your score.', icon: BookOpenCheck },
+  { number: '03', title: 'Learn', description: 'Get clear, step-by-step explanations that make every answer count.', icon: Lightbulb },
+  { number: '04', title: 'Improve', description: 'Watch your progress build and let your next steps adapt as you do.', icon: TrendingUp },
 ];
 
-const subjects = ['English', 'Math', 'Reading', 'Science'];
+const features = [
+  { title: 'Smart practice', description: 'A coach that adjusts to your answers, finds your gaps, and keeps practice at the right level.', icon: BrainCircuit, tone: 'green' },
+  { title: 'Explanations that teach', description: 'Understand why an answer works—not just which option to pick—with friendly, clear walkthroughs.', icon: MessageCircleQuestion, tone: 'cream' },
+  { title: 'Practice that feels personal', description: 'Spend more time on the skills you need and less time repeating what you already know.', icon: Target, tone: 'blue' },
+  { title: 'Progress you can understand', description: 'Follow your score trends, section strengths, and small wins in one clear view.', icon: ChartNoAxesCombined, tone: 'gold' },
+  { title: 'Full-length practice tests', description: 'Build confidence with realistic test sessions and focused review afterward.', icon: Clock3, tone: 'rose' },
+  { title: 'A study plan that fits', description: 'Turn your target and timeline into manageable sessions that work around your week.', icon: GraduationCap, tone: 'sage' },
+];
+
+const sections = [
+  { name: 'English', detail: 'Usage, mechanics & rhetoric', icon: PenLine, count: 'Grammar · Organization · Style', tone: 'section-green' },
+  { name: 'Math', detail: 'Build fluency and confidence', icon: Atom, count: 'Algebra · Functions · Geometry', tone: 'section-blue' },
+  { name: 'Reading', detail: 'Read closely, answer confidently', icon: BookOpen, count: 'Key ideas · Craft · Integration', tone: 'section-gold' },
+  { name: 'Science', detail: 'Make sense of data and ideas', icon: FlaskConical, count: 'Data · Experiments · Viewpoints', tone: 'section-rose' },
+];
+
+const faqs = [
+  { question: 'Is Northstar ACT really free?', answer: 'Yes. The goal is to make thoughtful ACT preparation accessible. You can start practicing without paying or entering payment details.' },
+  { question: 'How is an ACT coach different from a question bank?', answer: 'A question bank gives you questions to browse. A coach helps you understand your starting point, chooses useful practice, explains your answers, and guides what to work on next.' },
+  { question: 'Does it cover every ACT section?', answer: 'The platform is designed around English, Math, Reading, and Science, so your preparation can include the sections that matter for your goals.' },
+  { question: 'Do I need to know my target score to start?', answer: 'No. You can begin with a diagnostic to get a sense of your current strengths and choose a goal later.' },
+];
+
+function Brand({ inverse = false }: { inverse?: boolean }) {
+  return <Link href="/" className={`lp-brand${inverse ? ' lp-brand-inverse' : ''}`} aria-label="Northstar ACT home"><span className="lp-brand-mark"><Compass size={18} strokeWidth={2.1} /></span><span>northstar<span className="lp-brand-suffix">.act</span></span></Link>;
+}
+
+function ProductPreview() {
+  return (
+    <div className="lp-product-stage" aria-label="Preview of the Northstar ACT student dashboard">
+      <div className="lp-product-glow" aria-hidden="true" />
+      <div className="lp-product-window">
+        <div className="lp-window-sidebar">
+          <div className="lp-mini-brand"><span><Compass size={12} /></span><b>northstar</b></div>
+          <div className="lp-mini-nav-label">YOUR PREP</div>
+          <div className="lp-mini-nav lp-mini-nav-active"><span><ChartNoAxesCombined size={13} /></span>Dashboard</div>
+          <div className="lp-mini-nav"><span><BrainCircuit size={13} /></span>Smart Practice</div>
+          <div className="lp-mini-nav"><span><BookOpenCheck size={13} /></span>Practice</div>
+          <div className="lp-mini-nav"><span><GraduationCap size={13} /></span>Study Plan</div>
+          <div className="lp-mini-sidebar-note"><Sparkles size={12} /><span>One step at a time.</span></div>
+        </div>
+        <div className="lp-window-main">
+          <div className="lp-window-topbar"><span>Good morning, Alex <span aria-hidden="true">✳</span></span><div className="lp-window-user"><span className="lp-live-dot" /> Your study space <span className="lp-window-avatar">A</span></div></div>
+          <div className="lp-dashboard-content">
+            <div className="lp-dashboard-greeting"><div><span className="lp-date-label">TUESDAY, OCTOBER 14</span><h3>You’re building momentum.</h3><p>Here’s your next best step toward your goal.</p></div><span className="lp-streak-pill"><span>✳</span> 5 day streak</span></div>
+            <div className="lp-score-grid">
+              <div className="lp-score-card"><div className="lp-score-card-top"><span>COMPOSITE SCORE</span><span className="lp-score-icon"><Target size={13} /></span></div><div className="lp-score-number">25 <small>/ 36</small></div><div className="lp-score-foot"><span className="lp-score-trend"><TrendingUp size={11} /> +2 points</span><span>since your start</span></div><div className="lp-score-track"><span /></div><div className="lp-score-scale"><span>Starting 23</span><span>Goal 29</span></div></div>
+              <div className="lp-chart-card"><div className="lp-score-card-top"><span>YOUR PROGRESS</span><span className="lp-chart-period">Last 4 weeks <ChevronDown size={11} /></span></div><div className="lp-chart"><div className="lp-chart-y"><span>30</span><span>25</span><span>20</span></div><div className="lp-chart-main"><div className="lp-chart-grid"><i /><i /><i /></div><svg viewBox="0 0 260 86" preserveAspectRatio="none" aria-label="Score trend rising over four weeks"><path className="lp-chart-area" d="M0 68 C35 63 42 70 72 53 S118 55 143 39 S190 47 218 23 S244 29 260 10 L260 86 L0 86 Z" /><path className="lp-chart-line" d="M0 68 C35 63 42 70 72 53 S118 55 143 39 S190 47 218 23 S244 29 260 10" /><circle cx="260" cy="10" r="4" className="lp-chart-point" /></svg><div className="lp-chart-x"><span>Sep 16</span><span>Sep 23</span><span>Sep 30</span><span>Oct 7</span></div></div></div></div>
+            </div>
+            <div className="lp-dashboard-lower">
+              <div className="lp-subject-card"><div className="lp-card-heading"><div><strong>Section snapshot</strong><span>You&apos;re finding your footing</span></div><ArrowUpRight size={14} /></div><div className="lp-subject-row"><span className="lp-subject-dot lp-dot-english" /><span>English</span><span className="lp-subject-bar"><i style={{ width: '72%' }} /></span><b>26</b></div><div className="lp-subject-row"><span className="lp-subject-dot lp-dot-math" /><span>Math</span><span className="lp-subject-bar"><i style={{ width: '55%' }} /></span><b>23</b></div><div className="lp-subject-row"><span className="lp-subject-dot lp-dot-reading" /><span>Reading</span><span className="lp-subject-bar"><i style={{ width: '68%' }} /></span><b>25</b></div><div className="lp-subject-row"><span className="lp-subject-dot lp-dot-science" /><span>Science</span><span className="lp-subject-bar"><i style={{ width: '62%' }} /></span><b>24</b></div></div>
+              <div className="lp-next-card"><div className="lp-next-label"><Sparkles size={12} /> PICKED FOR YOU</div><h4>Make linear equations feel easy</h4><p>A quick set based on your recent Math practice.</p><div className="lp-next-meta"><span><Clock3 size={11} /> 8 min</span><span>6 questions</span></div><div className="lp-next-button">Continue practice <ArrowRight size={13} /></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="lp-preview-note"><span className="lp-preview-note-icon"><Check size={13} /></span><span>Every session has a next step.</span></div>
+    </div>
+  );
+}
 
 export default function Home() {
   return (
-    <main className="overflow-hidden">
-      <header className="mx-auto flex max-w-[1280px] items-center justify-between px-6 py-6 sm:px-10 lg:px-16">
-        <a className="flex items-center gap-2.5" href="#top" aria-label="Northstar ACT home">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-ink text-lime">
-            <Compass size={20} strokeWidth={2.2} />
-          </span>
-          <span className="text-[17px] font-bold tracking-[-0.04em]">northstar<span className="font-medium text-moss">.act</span></span>
-        </a>
-        <nav className="hidden items-center gap-9 text-[13px] font-medium text-ink/70 md:flex" aria-label="Main navigation">
-          <a className="transition hover:text-ink" href="#how-it-works">How it works</a>
-          <a className="transition hover:text-ink" href="#subjects">What you’ll practice</a>
-          <a className="transition hover:text-ink" href="#promise">Our promise</a>
-        </nav>
-        <a className="group inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-[13px] font-semibold text-white transition hover:bg-moss" href="#get-started">
-          Get started <ArrowRight className="transition-transform group-hover:translate-x-0.5" size={15} />
-        </a>
+    <main className="lp-page">
+      <header className="lp-header">
+        <div className="lp-header-inner">
+          <Brand />
+          <nav className="lp-nav" aria-label="Main navigation"><a href="#how-it-works">How it works</a><a href="#features">The coach</a><a href="#sections">ACT sections</a><a href="#faq">FAQ</a></nav>
+          <div className="lp-header-actions"><Link href="/login" className="lp-login-link">Log in</Link><Link href="/signup" className="lp-header-cta">Create account <ArrowRight size={14} /></Link></div>
+        </div>
       </header>
 
-      <section id="top" className="mx-auto grid max-w-[1280px] items-center gap-14 px-6 pb-20 pt-12 sm:px-10 md:pb-28 md:pt-16 lg:grid-cols-[1fr_0.9fr] lg:gap-10 lg:px-16">
-        <div className="relative z-10 max-w-[600px]">
-          <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-ink/10 bg-white/70 px-3.5 py-2 text-[11px] font-semibold tracking-[0.11em] text-moss">
-            <Sparkles size={13} /> YOUR NEXT CHAPTER STARTS HERE
+      <section className="lp-hero" id="top">
+        <div className="lp-hero-inner">
+          <div className="lp-hero-copy">
+            <div className="lp-eyebrow"><span className="lp-eyebrow-icon"><Sparkles size={12} /></span> YOUR PERSONAL ACT COACH</div>
+            <h1>Prepare smarter.<br /><em>Raise your ACT score.</em></h1>
+            <p className="lp-hero-description">Not just more questions. A smarter way to prepare—with a coach that finds what to focus on, helps you learn from every answer, and adapts as you improve.</p>
+            <div className="lp-hero-actions"><Link href="/signup" className="lp-button lp-button-primary">Start practicing <ArrowRight size={16} /></Link><Link href="/signup" className="lp-button lp-button-secondary"><Target size={15} /> Take a diagnostic</Link></div>
+            <div className="lp-trust-row"><span className="lp-trust-icon"><ShieldCheck size={15} /></span><span>Free to use</span><i /> <span>No credit card</span><i /> <span>Built around you</span></div>
           </div>
-          <h1 className="text-[clamp(3.5rem,7.3vw,6.7rem)] font-semibold leading-[0.94] tracking-[-0.075em] text-ink">
-            A clearer path<br />to your <span className="relative inline-block italic text-moss">ACT goal<svg className="absolute -bottom-2 left-0 w-full" viewBox="0 0 250 12" fill="none" aria-hidden="true"><path d="M3 8C61 2 168 1 246 6" stroke="#C6E58B" strokeWidth="6" strokeLinecap="round" /></svg></span>
-          </h1>
-          <p className="mt-8 max-w-[440px] text-[16px] leading-7 text-ink/65 sm:text-[17px]">
-            A free study plan that starts where you are, focuses on what matters, and gets smarter with every question.
-          </p>
-          <div id="get-started" className="mt-9 flex flex-wrap items-center gap-4">
-            <a className="group inline-flex items-center gap-3 rounded-full bg-ink px-6 py-4 text-sm font-semibold text-white shadow-[0_8px_24px_-12px_rgba(24,58,49,0.65)] transition hover:-translate-y-0.5 hover:bg-moss" href="#how-it-works">
-              Build my study plan <ArrowRight className="transition-transform group-hover:translate-x-1" size={17} />
-            </a>
-            <span className="text-xs font-medium text-ink/50">Free to start. Always.</span>
-          </div>
-          <div className="mt-10 flex items-center gap-3 text-[12px] text-ink/55">
-            <div className="flex -space-x-2" aria-hidden="true">
-              <span className="grid h-8 w-8 place-items-center rounded-full border-2 border-cream bg-[#e7b58e] text-[10px] font-bold text-ink">A</span>
-              <span className="grid h-8 w-8 place-items-center rounded-full border-2 border-cream bg-[#bed4b4] text-[10px] font-bold text-ink">J</span>
-              <span className="grid h-8 w-8 place-items-center rounded-full border-2 border-cream bg-[#d5c5e2] text-[10px] font-bold text-ink">M</span>
-            </div>
-            <span>Made for your goals, at your pace.</span>
-          </div>
+          <ProductPreview />
         </div>
+        <div className="lp-hero-bottom"><span>THE ACT, WITH A GAME PLAN</span><span className="lp-scroll-cue">A better way to prep <ArrowDownRight size={13} /></span></div>
+      </section>
 
-        <div className="relative mx-auto w-full max-w-[530px] lg:ml-auto">
-          <div className="absolute -right-6 -top-10 h-64 w-64 rounded-full bg-lime/45 blur-3xl" />
-          <div className="absolute -bottom-8 -left-8 h-48 w-48 rounded-full bg-[#dfe9d4] blur-3xl" />
-          <div className="relative rotate-[1.2deg] rounded-[28px] border border-ink/[0.07] bg-white p-5 shadow-[0_28px_90px_-42px_rgba(24,58,49,0.32)] sm:p-7">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span className="grid h-10 w-10 place-items-center rounded-2xl bg-[#f1f5e9] text-moss"><GraduationCap size={21} /></span>
-                <div><p className="text-[13px] font-bold tracking-tight">Your study snapshot</p><p className="mt-0.5 text-[11px] text-ink/45">A little progress, every day</p></div>
-              </div>
-              <span className="grid h-8 w-8 place-items-center rounded-full bg-cream text-ink/55"><ArrowUpRight size={15} /></span>
-            </div>
-
-            <div className="mt-7 rounded-[20px] bg-cream p-5 sm:p-6">
-              <div className="flex items-start justify-between">
-                <div><p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink/45">Your ACT target</p><p className="mt-2 text-4xl font-semibold tracking-[-0.06em]">28<span className="ml-1 text-lg font-medium text-ink/35">/ 36</span></p></div>
-                <span className="inline-flex items-center gap-1 rounded-full bg-[#e6f0d3] px-2.5 py-1.5 text-[10px] font-semibold text-moss"><MoveUpRight size={12} /> +3 pts</span>
-              </div>
-              <div className="mt-5 h-2 overflow-hidden rounded-full bg-ink/10"><div className="h-full w-[68%] rounded-full bg-moss" /></div>
-              <div className="mt-2 flex justify-between text-[10px] font-medium text-ink/40"><span>Starting point 25</span><span>Goal 28</span></div>
-            </div>
-
-            <div className="mt-5 grid grid-cols-2 gap-3">
-              <div className="rounded-[18px] border border-ink/[0.07] p-4"><div className="flex items-center gap-2 text-ink/45"><Flame size={15} className="text-[#d59663]" /><span className="text-[10px] font-semibold uppercase tracking-wider">Study streak</span></div><p className="mt-3 text-[22px] font-semibold tracking-tight">5 <span className="text-xs font-medium text-ink/45">days</span></p><div className="mt-2 flex gap-1"><i className="h-1.5 flex-1 rounded-full bg-moss"/><i className="h-1.5 flex-1 rounded-full bg-moss"/><i className="h-1.5 flex-1 rounded-full bg-moss"/><i className="h-1.5 flex-1 rounded-full bg-moss"/><i className="h-1.5 flex-1 rounded-full bg-lime"/><i className="h-1.5 flex-1 rounded-full bg-ink/10"/><i className="h-1.5 flex-1 rounded-full bg-ink/10"/></div></div>
-              <div className="rounded-[18px] border border-ink/[0.07] p-4"><div className="flex items-center gap-2 text-ink/45"><Target size={15} className="text-moss" /><span className="text-[10px] font-semibold uppercase tracking-wider">This week</span></div><p className="mt-3 text-[22px] font-semibold tracking-tight">72<span className="ml-1 text-xs font-medium text-ink/45">questions</span></p><p className="mt-2 text-[10px] font-medium text-moss">You’re right on track</p></div>
-            </div>
-
-            <div className="mt-5 rounded-[18px] border border-ink/[0.07] p-4">
-              <div className="mb-3 flex items-center justify-between"><p className="text-[12px] font-bold">Your next best step</p><span className="inline-flex items-center gap-1 text-[10px] font-semibold text-moss"><Sparkles size={11} /> JUST FOR YOU</span></div>
-              <div className="flex items-center gap-3 rounded-xl bg-[#f4f7ee] p-3"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white text-moss"><BookOpenCheck size={17} /></span><div className="min-w-0 flex-1"><p className="truncate text-[11px] font-semibold">Linear equations · 8 min</p><p className="mt-1 text-[10px] text-ink/45">Based on your last practice</p></div><span className="text-moss"><ArrowDownRight size={15} /></span></div>
-            </div>
-          </div>
-          <div className="absolute -left-7 top-[42%] hidden -rotate-3 items-center gap-2 rounded-2xl border border-ink/[0.06] bg-white px-4 py-3 shadow-lg sm:flex"><span className="grid h-8 w-8 place-items-center rounded-xl bg-[#f0f5e6] text-moss"><Check size={16} /></span><span className="text-[11px] font-semibold">One step at a time.</span></div>
+      <section className="lp-how lp-section" id="how-it-works">
+        <div className="lp-container">
+          <div className="lp-section-heading lp-heading-split"><div><span className="lp-kicker">A COACHING LOOP, NOT A QUESTION DUMP</span><h2>Know what to do next.</h2></div><p>Good preparation isn’t about doing everything. It’s about doing the right thing next—and understanding why.</p></div>
+          <div className="lp-steps-grid">{steps.map((step) => { const Icon = step.icon; return <article className="lp-step" key={step.number}><div className="lp-step-top"><span className="lp-step-number">{step.number}</span><span className="lp-step-icon"><Icon size={17} /></span></div><h3>{step.title}</h3><p>{step.description}</p></article>; })}</div>
+          <div className="lp-loop-caption"><span className="lp-loop-line" /><Sparkles size={13} /><span>Your plan gets a little smarter with every session.</span><span className="lp-loop-line" /></div>
         </div>
       </section>
 
-      <section id="subjects" className="border-y border-ink/[0.07] bg-white/65 py-7">
-        <div className="mx-auto flex max-w-[1280px] flex-col items-center justify-between gap-5 px-6 sm:px-10 md:flex-row lg:px-16">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-ink/45">Every ACT section, one focused plan</p>
-          <div className="flex flex-wrap justify-center gap-2.5">{subjects.map((subject) => <span key={subject} className="inline-flex items-center gap-2 rounded-full border border-ink/[0.09] px-4 py-2 text-[12px] font-medium text-ink/75"><span className="h-1.5 w-1.5 rounded-full bg-moss" />{subject}</span>)}</div>
+      <section className="lp-features lp-section" id="features">
+        <div className="lp-container">
+          <div className="lp-section-heading lp-heading-center"><span className="lp-kicker">MORE THAN A QUESTION BANK</span><h2>A coach in your corner.</h2><p>Everything you need to turn practice into progress, all in one focused place.</p></div>
+          <div className="lp-feature-grid">{features.map((feature) => { const Icon = feature.icon; return <article className="lp-feature-card" key={feature.title}><span className={`lp-feature-icon lp-feature-icon-${feature.tone}`}><Icon size={18} strokeWidth={1.8} /></span><h3>{feature.title}</h3><p>{feature.description}</p><ArrowUpRight className="lp-feature-arrow" size={15} /></article>; })}</div>
         </div>
       </section>
 
-      <section id="how-it-works" className="mx-auto max-w-[1280px] px-6 py-24 sm:px-10 md:py-32 lg:px-16">
-        <div className="grid gap-12 md:grid-cols-[0.75fr_1.25fr] md:gap-20">
-          <div><p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.16em] text-moss">A plan that moves with you</p><h2 className="max-w-[410px] text-4xl font-semibold leading-[1.08] tracking-[-0.06em] sm:text-5xl">Less guessing.<br />More <span className="italic text-moss">getting there.</span></h2><p className="mt-6 max-w-[360px] text-sm leading-6 text-ink/60">Big goals feel smaller when you know exactly what to do next. We help you find that next step.</p></div>
-          <div className="divide-y divide-ink/10">{steps.map((step) => <article key={step.number} className="grid grid-cols-[48px_1fr] gap-4 py-6 first:pt-0 last:pb-0 sm:grid-cols-[64px_1fr] sm:gap-6"><span className="pt-1 text-xs font-semibold tracking-widest text-moss/65">{step.number}</span><div><h3 className="text-[17px] font-semibold tracking-tight">{step.title}</h3><p className="mt-2 max-w-[410px] text-[13px] leading-6 text-ink/55">{step.detail}</p></div></article>)}</div>
+      <section className="lp-sections lp-section" id="sections">
+        <div className="lp-container lp-section-content">
+          <div className="lp-section-heading lp-heading-split"><div><span className="lp-kicker">FOUR SECTIONS. ONE CLEAR PLAN.</span><h2>The whole ACT,<br />made manageable.</h2></div><p>Build strength where you need it. Your coach brings every section into one clear, balanced preparation plan.</p></div>
+          <div className="lp-act-grid">{sections.map((subject) => { const Icon = subject.icon; return <article className={`lp-act-card ${subject.tone}`} key={subject.name}><div className="lp-act-card-top"><span className="lp-act-icon"><Icon size={19} /></span><ArrowUpRight size={15} className="lp-act-arrow" /></div><h3>{subject.name}</h3><p>{subject.detail}</p><span className="lp-act-skills">{subject.count}</span></article>; })}</div>
+          <div className="lp-act-footnote"><CircleHelp size={14} /><span>Your study plan can focus on the sections that matter most to your goals.</span></div>
         </div>
       </section>
 
-      <section id="promise" className="bg-ink px-6 py-20 text-white sm:px-10 md:py-24 lg:px-16">
-        <div className="mx-auto flex max-w-[1120px] flex-col items-start justify-between gap-9 md:flex-row md:items-end">
-          <div className="max-w-[590px]"><div className="mb-5 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.15em] text-lime"><CircleHelp size={14} /> A promise, not a paywall</div><h2 className="text-4xl font-semibold leading-[1.08] tracking-[-0.06em] sm:text-5xl">Your future shouldn’t<br className="hidden sm:block" /> depend on your budget.</h2><p className="mt-5 max-w-[450px] text-sm leading-6 text-white/60">Useful ACT prep should be within everyone’s reach. Northstar is free to use, so you can focus on what you’re here to do.</p></div>
-          <a className="group inline-flex shrink-0 items-center gap-3 rounded-full bg-lime px-6 py-4 text-sm font-semibold text-ink transition hover:-translate-y-0.5" href="#get-started">Find your next step <ArrowRight className="transition-transform group-hover:translate-x-1" size={17} /></a>
+      <section className="lp-explain lp-section">
+        <div className="lp-container lp-explain-grid">
+          <div className="lp-explain-copy"><span className="lp-kicker">THE WHY MATTERS</span><h2>Missed a question?<br /><em>That’s where learning starts.</em></h2><p>Instead of leaving you to guess, your coach walks through the reasoning, points out the useful idea, and helps you recognize it next time.</p><ul><li><span><Check size={12} /></span> Clear, step-by-step reasoning</li><li><span><Check size={12} /></span> Friendly explanations, no judgment</li><li><span><Check size={12} /></span> Practice that responds to what you learn</li></ul><Link href="/practice" className="lp-text-link">Explore ACT practice <ArrowRight size={14} /></Link></div>
+          <div className="lp-explanation-card" aria-label="Example of a question explanation">
+            <div className="lp-explanation-top"><span className="lp-question-label"><BookOpen size={13} /> MATH · LINEAR EQUATIONS</span><span className="lp-question-count">QUESTION 4 OF 8</span></div>
+            <p className="lp-question-text">If <span>3x + 5 = 20</span>, what is the value of <span>x</span>?</p>
+            <div className="lp-answer-list"><div className="lp-answer"><span>A</span> 3</div><div className="lp-answer lp-answer-correct"><span>B</span> 5 <Check size={14} /></div><div className="lp-answer"><span>C</span> 8</div><div className="lp-answer"><span>D</span> 15</div></div>
+            <div className="lp-ai-explanation"><div className="lp-ai-heading"><span><Sparkles size={13} /> LET’S WALK THROUGH IT</span><BadgeLabel>GOT IT</BadgeLabel></div><p>First, subtract 5 from both sides: <strong>3x = 15</strong>. Now divide both sides by 3, so <strong>x = 5</strong>.</p><div className="lp-ai-tip"><Lightbulb size={13} /><span>Try undoing operations in reverse order: addition first, then multiplication.</span></div></div>
+            <div className="lp-explanation-footer"><span><LockKeyhole size={12} /> Original practice question</span><span>Helpful? <span className="lp-helpful-yes">Yes</span></span></div>
+          </div>
         </div>
       </section>
 
-      <footer className="mx-auto flex max-w-[1280px] flex-col items-center justify-between gap-4 px-6 py-7 text-[11px] text-ink/45 sm:flex-row sm:px-10 lg:px-16">
-        <a className="flex items-center gap-2 font-bold tracking-tight text-ink" href="#top"><span className="grid h-6 w-6 place-items-center rounded-lg bg-ink text-lime"><Compass size={14} /></span>northstar.act</a>
-        <p>Built to help you find your way. © {new Date().getFullYear()} Northstar ACT</p>
-        <span className="inline-flex items-center gap-1.5"><Timer size={12} /> Your pace, your path</span>
-      </footer>
+      <section className="lp-faq lp-section" id="faq">
+        <div className="lp-container lp-faq-grid"><div className="lp-faq-intro"><span className="lp-kicker">GOOD QUESTIONS</span><h2>Before you dive in.</h2><p>A few things students often want to know.</p><a href="mailto:hello@northstar.act" className="lp-text-link">Still curious? Get in touch <ArrowRight size={14} /></a></div><div className="lp-faq-list">{faqs.map((faq) => <details className="lp-faq-item" key={faq.question}><summary>{faq.question}<ChevronDown size={16} /></summary><p>{faq.answer}</p></details>)}</div></div>
+      </section>
+
+      <section className="lp-final-cta" id="get-started"><div className="lp-final-cta-inner"><span className="lp-final-icon"><Compass size={19} /></span><span className="lp-kicker">YOUR NEXT CHAPTER STARTS HERE</span><h2>Make your next hour<br />of studying <em>count.</em></h2><p>Start with one question. Your coach will help you find the next step.</p><div className="lp-hero-actions lp-final-actions"><Link href="/signup" className="lp-button lp-button-light">Start practicing <ArrowRight size={16} /></Link><Link href="/signup" className="lp-button lp-button-outline"><Target size={15} /> Take a diagnostic</Link></div><span className="lp-final-assurance"><Check size={13} /> Free to use. No credit card.</span></div></section>
+
+      <footer className="lp-footer"><div className="lp-footer-inner"><Brand /><p>Thoughtful ACT prep, for wherever you’re headed.</p><div className="lp-footer-links"><a href="#how-it-works">How it works</a><a href="#faq">FAQ</a><Link href="/login">Log in</Link></div><span className="lp-copyright">© {new Date().getFullYear()} Northstar ACT</span></div></footer>
     </main>
   );
+}
+
+function BadgeLabel({ children }: { children: React.ReactNode }) {
+  return <span className="lp-mini-badge">{children}</span>;
 }

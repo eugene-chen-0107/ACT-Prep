@@ -1,0 +1,1 @@
+ALTER TABLE "topics" ADD CONSTRAINT "topics_not_own_parent_check" CHECK ("topics"."parent_topic_id" is null or "topics"."parent_topic_id" <> "topics"."id");

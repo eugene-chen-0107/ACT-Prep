@@ -1,10 +1,14 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import './design-system/design-system.css';
+import '@/components/app-shell.css';
+import './landing.css';
+import './auth.css';
 
 export const metadata: Metadata = {
-  title: 'Northstar ACT — A clearer path to your ACT goal',
+  title: 'Northstar ACT — Prepare smarter. Raise your ACT score.',
   description:
-    'Free, focused ACT practice that learns what you know and helps you improve what comes next.',
+    'A free, intelligent ACT coach that helps you diagnose, practice, learn, and improve your score.',
 };
 
 export default function RootLayout({
