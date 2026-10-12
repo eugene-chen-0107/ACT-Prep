@@ -19,6 +19,26 @@ function AuthSubmit({ loading, children }: { loading: boolean; children: React.R
   return <button className="auth-submit" type="submit" disabled={loading}>{loading ? <><LoaderCircle size={16} className="auth-spinner" /> Please wait…</> : <>{children}<ArrowRight size={15} /></>}</button>;
 }
 
+function getSignUpErrorMessage(error: unknown) {
+  if (!error || typeof error !== 'object') return 'We could not create your account. Please try again.';
+
+  const details = error as { status?: unknown; code?: unknown };
+  const status = typeof details.status === 'number' ? details.status : undefined;
+  const code = typeof details.code === 'string' ? details.code : undefined;
+
+  if (status === 429 || code === 'TOO_MANY_REQUESTS') return 'Too many signup attempts. Wait a minute and try again.';
+  if (status === 403) return 'Signup was blocked by the app’s origin settings. Check BETTER_AUTH_URL against the address you are using.';
+  if (status !== undefined && status >= 500) return `The account service failed (HTTP ${status}). Check the server log and confirm the database is reachable and migrations are applied.`;
+  if (code === 'USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL') return 'An account with that email already exists. Try logging in or resetting your password.';
+  if (code === 'INVALID_EMAIL') return 'Enter a valid email address and try again.';
+  if (code === 'PASSWORD_TOO_SHORT') return 'Choose a password with at least 12 characters.';
+
+  const reason = [status && `HTTP ${status}`, code].filter(Boolean).join(' / ');
+  return reason
+    ? `Signup was rejected (${reason}). Check your details; if this continues, share that code with the site administrator.`
+    : 'We could not create your account. Please try again.';
+}
+
 export function SignUpForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -33,9 +53,9 @@ export function SignUpForm() {
     if (password !== confirm) { setError('Those passwords do not match.'); setLoading(false); return; }
     try {
       const result = await authClient.signUp.email({ name, email, password, callbackURL: '/dashboard' });
-      if (result.error) setError('We could not create that account. Check your details or try signing in.');
+      if (result.error) setError(getSignUpErrorMessage(result.error));
       else setCreated(true);
-    } catch { setError('We could not create your account right now. Please try again.'); }
+    } catch { setError('Could not reach the signup service. Check your connection and the app server, then try again.'); }
     finally { setLoading(false); }
   }
   if (created) return <div className="auth-form"><FormNotice tone="success">Your account is ready. Verify your email to activate it and continue to your study space.</FormNotice><Link className="auth-submit auth-submit-link" href="/login">Continue to login <ArrowRight size={15} /></Link></div>;

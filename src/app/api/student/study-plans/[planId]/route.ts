@@ -5,12 +5,14 @@ import { headers } from 'next/headers';
 import { getAuth } from '@/lib/auth';
 import { getDb } from '@/db';
 import { studyPlans } from '@/db/schema';
+import { adaptMyAdaptiveStudyPlan, StudyPlanRequestError, updateMyStudyTask } from '@/lib/study-plan-data';
 import { hasTrustedOrigin } from '@/lib/request-security';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const updatePlanSchema = z.object({
+  action: z.literal('adapt').optional(),
   title: z.string().trim().min(1).max(120).optional(),
   targetScore: z.number().int().min(1).max(36).nullable().optional(),
   targetDate: z.iso.datetime().nullable().optional(),
@@ -24,6 +26,14 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ pl
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const parsed = updatePlanSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: 'Invalid study plan.' }, { status: 400 });
+  if (parsed.data.action === 'adapt') {
+    const { planId } = await params;
+    try { return NextResponse.json({ studyPlan: await adaptMyAdaptiveStudyPlan(planId) }, { headers: { 'Cache-Control': 'private, no-store' } }); }
+    catch (error) {
+      if (error instanceof StudyPlanRequestError) return NextResponse.json({ error: error.message }, { status: error.status });
+      return NextResponse.json({ error: 'Study plan could not adapt.' }, { status: 500 });
+    }
+  }
   const { planId } = await params;
   const input = parsed.data;
   const [plan] = await getDb().update(studyPlans).set({
@@ -33,6 +43,25 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ pl
   }).where(and(eq(studyPlans.id, planId), eq(studyPlans.userId, session.user.id))).returning();
   if (!plan) return NextResponse.json({ error: 'Study plan not found.' }, { status: 404 });
   return NextResponse.json({ studyPlan: plan }, { headers: { 'Cache-Control': 'private, no-store' } });
+}
+
+export async function POST(request: Request, { params }: { params: Promise<{ planId: string }> }) {
+  if (!hasTrustedOrigin(request)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  const session = await getAuth().api.getSession({ headers: await headers() });
+  if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const parsed = z.object({
+    status: z.enum(['pending', 'in_progress', 'completed', 'skipped']).optional(),
+    taskDate: z.iso.date().optional(),
+  }).strict().safeParse(await request.json().catch(() => null));
+  if (!parsed.success || (!parsed.data.status && !parsed.data.taskDate)) return NextResponse.json({ error: 'Choose a task status or reschedule date.' }, { status: 400 });
+  const { planId } = await params;
+  try {
+    const task = await updateMyStudyTask(planId, parsed.data);
+    return NextResponse.json({ task }, { headers: { 'Cache-Control': 'private, no-store' } });
+  } catch (error) {
+    if (error instanceof StudyPlanRequestError) return NextResponse.json({ error: error.message }, { status: error.status });
+    return NextResponse.json({ error: 'Study task could not be updated.' }, { status: 500 });
+  }
 }
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ planId: string }> }) {

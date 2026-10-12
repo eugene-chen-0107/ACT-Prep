@@ -4,7 +4,28 @@ import { and, eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { getDb } from '@/db';
 import { getAuth } from '@/lib/auth';
-import { practiceSessions, questionAttempts, questions, sections, testAttempts, topics } from '@/db/schema';
+import { practiceSessions, questionAttempts, testAttempts } from '@/db/schema';
+import { questionProvider } from '@/lib/question-providers';
+import type { UnifiedQuestion } from '@/lib/question-provider';
+import { normalizeQuestionSource } from '@/lib/question-provider';
+
+function toAttemptQuestion(question: UnifiedQuestion) {
+  return {
+    id: question.id,
+    prompt: question.question,
+    options: question.choices,
+    correctAnswer: question.correctAnswer,
+    explanation: question.explanation,
+    difficulty: question.difficulty,
+    questionType: question.questionType,
+    estimatedTimeSeconds: question.estimatedTimeSeconds,
+    tags: question.tags,
+    subtopic: question.subtopic,
+    topic: question.topic,
+    section: question.section,
+    source: question.source,
+  };
+}
 
 const recordAttemptInput = z.object({
   questionId: z.string().trim().min(1).max(128),
@@ -27,26 +48,10 @@ export async function recordQuestionAttempt(input: unknown) {
   const userId = currentSession?.user?.id;
   if (!userId) throw new Error('Authentication required.');
 
+  const providedQuestion = await questionProvider.getQuestionById(parsed.data.questionId);
+  if (!providedQuestion) throw new Error('Question not found.');
+  const question = toAttemptQuestion(providedQuestion);
   const db = getDb();
-  const [question] = await db
-    .select({
-      id: questions.id,
-      prompt: questions.prompt,
-      options: questions.options,
-      correctAnswer: questions.correctAnswer,
-      explanation: questions.explanation,
-      difficulty: questions.difficulty,
-      subtopic: questions.subtopic,
-      topic: topics.name,
-      section: sections.name,
-    })
-    .from(questions)
-    .innerJoin(topics, eq(questions.topicId, topics.id))
-    .innerJoin(sections, eq(questions.sectionId, sections.id))
-    .where(and(eq(questions.id, parsed.data.questionId), eq(questions.status, 'published')))
-    .limit(1);
-
-  if (!question) throw new Error('Question not found.');
   if (parsed.data.selectedAnswer !== null && !question.options.some(({ id }) => id === parsed.data.selectedAnswer)) {
     throw new Error('Selected answer is not one of the available choices.');
   }
@@ -85,6 +90,10 @@ export async function recordQuestionAttempt(input: unknown) {
       prompt: question.prompt,
       options: question.options,
       explanation: question.explanation,
+      questionType: question.questionType,
+      estimatedTimeSeconds: question.estimatedTimeSeconds,
+      tags: question.tags,
+      source: normalizeQuestionSource(question.source),
     },
   }).returning({
     id: questionAttempts.id,

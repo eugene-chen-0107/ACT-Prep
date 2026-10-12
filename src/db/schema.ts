@@ -17,13 +17,38 @@ import {
 const timestampColumn = (name: string) => timestamp(name, { withTimezone: true, mode: 'date' });
 
 export type QuestionDifficulty = 'easy' | 'medium' | 'hard';
+export type QuestionType = 'multiple_choice' | 'passage_based' | 'data_interpretation' | 'experiment_analysis';
+export type QuestionSource = 'original' | 'curated' | 'ai_generated' | 'licensed_api';
 export type QuestionStatus = 'draft' | 'published' | 'retired';
+export type GeneratedQuestionLifecycle = 'GENERATED' | 'VALIDATING' | 'APPROVED' | 'AVAILABLE' | 'REJECTED' | 'REGENERATE';
 export type PracticeStatus = 'in_progress' | 'completed' | 'abandoned';
+export type DiagnosticStatus = 'in_progress' | 'completed';
 export type QuestionOption = { id: string; text: string };
 export type QuestionSnapshot = {
   prompt: string;
+  passage?: string | null;
   options: QuestionOption[];
   explanation?: string;
+  questionType?: QuestionType;
+  estimatedTimeSeconds?: number;
+  tags?: string[];
+  source?: QuestionSource;
+};
+export type ReviewFlagSnapshot = {
+  prompt: string;
+  passage: string | null;
+  options: QuestionOption[];
+  explanation: string;
+  correctAnswer: string;
+};
+export type AIExplanationPayload = {
+  stepByStep: string[];
+  whySelectedAnswerWasIncorrect: string;
+  keyConcept: string;
+  actStrategy: string;
+  shortcut: string | null;
+  takeaway: string;
+  calculationChecks: Array<{ left: number; operator: '+' | '-' | '*' | '/' | '^'; right: number; result: number }>;
 };
 
 // Better Auth core schema. Password hashes are stored on the credential account,
@@ -84,7 +109,8 @@ export const account = pgTable(
 );
 
 export const rateLimit = pgTable('rate_limit', {
-  key: text('key').primaryKey(),
+  id: text('id').primaryKey(),
+  key: text('key').notNull().unique(),
   count: integer('count').notNull(),
   lastRequest: bigint('last_request', { mode: 'number' }).notNull(),
 });
@@ -141,13 +167,18 @@ export const questions = pgTable(
     slug: text('slug').notNull().unique(),
     sectionId: text('section_id').notNull().references(() => sections.id, { onDelete: 'restrict' }),
     topicId: text('topic_id').notNull().references(() => topics.id, { onDelete: 'restrict' }),
+    subtopicId: text('subtopic_id').references(() => topics.id, { onDelete: 'restrict' }),
     subtopic: text('subtopic'),
     difficulty: text('difficulty').$type<QuestionDifficulty>().notNull(),
+    questionType: text('question_type').$type<QuestionType>().notNull().default('multiple_choice'),
+    estimatedTimeSeconds: integer('estimated_time_seconds').notNull().default(60),
+    tags: jsonb('tags').$type<string[]>().notNull().default([]),
     prompt: text('prompt').notNull(),
     options: jsonb('options').$type<QuestionOption[]>().notNull(),
     correctAnswer: text('correct_answer').notNull(),
     explanation: text('explanation').notNull(),
     status: text('status').$type<QuestionStatus>().notNull().default('draft'),
+    // Keep storage permissive for legacy/source-specific values; providers normalize into QuestionSource.
     source: text('source').notNull().default('curated'),
     sourceMetadata: jsonb('source_metadata').$type<Record<string, unknown>>().notNull().default({}),
     createdAt: timestampColumn('created_at').notNull().defaultNow(),
@@ -157,8 +188,10 @@ export const questions = pgTable(
   },
   (table) => [
     check('questions_difficulty_check', sql`${table.difficulty} in ('easy', 'medium', 'hard')`),
+    check('questions_estimated_time_positive_check', sql`${table.estimatedTimeSeconds} > 0`),
     check('questions_status_check', sql`${table.status} in ('draft', 'published', 'retired')`),
     index('questions_section_topic_idx').on(table.sectionId, table.topicId),
+    index('questions_subtopic_id_idx').on(table.subtopicId),
     index('questions_status_difficulty_idx').on(table.status, table.difficulty),
     index('questions_topic_id_idx').on(table.topicId),
   ],
@@ -199,6 +232,48 @@ export const practiceSessions = pgTable(
   ],
 );
 
+export const diagnosticAssessments = pgTable(
+  'diagnostic_assessments',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+    questionIds: jsonb('question_ids').$type<string[]>().notNull(),
+    status: text('status').$type<DiagnosticStatus>().notNull().default('in_progress'),
+    report: jsonb('report').$type<Record<string, unknown>>(),
+    startedAt: timestampColumn('started_at').notNull().defaultNow(),
+    completedAt: timestampColumn('completed_at'),
+  },
+  (table) => [
+    check('diagnostic_assessments_status_check', sql`${table.status} in ('in_progress', 'completed')`),
+    index('diagnostic_assessments_user_started_idx').on(table.userId, table.startedAt),
+  ],
+);
+
+export const diagnosticResponses = pgTable(
+  'diagnostic_responses',
+  {
+    id: text('id').primaryKey(),
+    assessmentId: text('assessment_id').notNull().references(() => diagnosticAssessments.id, { onDelete: 'cascade' }),
+    userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+    questionId: text('question_id').notNull(),
+    isCorrect: boolean('is_correct').notNull(),
+    timeSpentSeconds: integer('time_spent_seconds').notNull(),
+    section: text('section').notNull(),
+    topic: text('topic').notNull(),
+    subtopic: text('subtopic'),
+    difficulty: text('difficulty').$type<QuestionDifficulty>().notNull(),
+    questionType: text('question_type').$type<QuestionType>().notNull(),
+    estimatedTimeSeconds: integer('estimated_time_seconds').notNull(),
+    attemptedAt: timestampColumn('attempted_at').notNull().defaultNow(),
+  },
+  (table) => [
+    check('diagnostic_responses_time_nonnegative_check', sql`${table.timeSpentSeconds} >= 0`),
+    check('diagnostic_responses_estimated_time_positive_check', sql`${table.estimatedTimeSeconds} > 0`),
+    uniqueIndex('diagnostic_responses_assessment_question_unique').on(table.assessmentId, table.questionId),
+    index('diagnostic_responses_user_attempted_idx').on(table.userId, table.attemptedAt),
+  ],
+);
+
 export const practiceTests = pgTable(
   'practice_tests',
   {
@@ -209,6 +284,7 @@ export const practiceTests = pgTable(
     description: text('description'),
     status: text('status').notNull().default('draft'),
     durationSeconds: integer('duration_seconds').notNull(),
+    sectionConfiguration: jsonb('section_configuration').$type<Array<{ sectionId: string; durationSeconds: number; instructions: string }>>().notNull().default([]),
     createdAt: timestampColumn('created_at').notNull().defaultNow(),
     updatedAt: timestampColumn('updated_at').notNull().defaultNow(),
     publishedAt: timestampColumn('published_at'),
@@ -248,6 +324,8 @@ export const testAttempts = pgTable(
     testVersionSnapshot: integer('test_version_snapshot').notNull(),
     // Frozen ordered question content ensures review/scoring remains reproducible if content changes.
     questionManifest: jsonb('question_manifest').$type<Array<Record<string, unknown>>>().notNull().default([]),
+    configurationSnapshot: jsonb('configuration_snapshot').$type<Array<{ sectionId: string; sectionName: string; durationSeconds: number; instructions: string; questionIds: string[] }>>().notNull().default([]),
+    state: jsonb('state').$type<Record<string, unknown>>().notNull().default({}),
     status: text('status').notNull().default('in_progress'),
     startedAt: timestampColumn('started_at').notNull().defaultNow(),
     completedAt: timestampColumn('completed_at'),
@@ -303,6 +381,60 @@ export const questionAttempts = pgTable(
 export type QuestionAttempt = typeof questionAttempts.$inferSelect;
 export type NewQuestionAttempt = typeof questionAttempts.$inferInsert;
 
+export const reviewFlags = pgTable(
+  'review_flags',
+  {
+    userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+    questionId: text('question_id').notNull(),
+    section: text('section').notNull(),
+    topic: text('topic'),
+    subtopic: text('subtopic'),
+    questionSnapshot: jsonb('question_snapshot').$type<ReviewFlagSnapshot>().notNull(),
+    flaggedAt: timestampColumn('flagged_at').notNull().defaultNow(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.userId, table.questionId] }),
+    index('review_flags_user_flagged_idx').on(table.userId, table.flaggedAt),
+  ],
+);
+
+export const generatedQuestionValidations = pgTable(
+  'generated_question_validations',
+  {
+    id: text('id').primaryKey(),
+    questionId: text('question_id').notNull().unique(),
+    lifecycle: text('lifecycle').$type<GeneratedQuestionLifecycle>().notNull().default('GENERATED'),
+    question: jsonb('question').$type<Record<string, unknown>>().notNull(),
+    checks: jsonb('checks').$type<Array<{ name: string; status: 'passed' | 'failed' | 'not_applicable'; details: string }>>().notNull().default([]),
+    errors: jsonb('errors').$type<string[]>().notNull().default([]),
+    attempts: integer('attempts').notNull().default(0),
+    createdAt: timestampColumn('created_at').notNull().defaultNow(),
+    updatedAt: timestampColumn('updated_at').notNull().defaultNow(),
+  },
+  (table) => [
+    check('generated_question_validations_lifecycle_check', sql`${table.lifecycle} in ('GENERATED', 'VALIDATING', 'APPROVED', 'AVAILABLE', 'REJECTED', 'REGENERATE')`),
+    check('generated_question_validations_attempts_check', sql`${table.attempts} >= 0`),
+    index('generated_question_validations_lifecycle_idx').on(table.lifecycle, table.createdAt),
+  ],
+);
+
+export const aiExplanationCache = pgTable(
+  'ai_explanation_cache',
+  {
+    cacheKey: text('cache_key').primaryKey(),
+    provider: text('provider').notNull(),
+    model: text('model').notNull(),
+    payload: jsonb('payload').$type<AIExplanationPayload>().notNull(),
+    status: text('status').notNull().default('ready'),
+    createdAt: timestampColumn('created_at').notNull().defaultNow(),
+    updatedAt: timestampColumn('updated_at').notNull().defaultNow(),
+  },
+  (table) => [
+    check('ai_explanation_cache_status_check', sql`${table.status} in ('ready', 'invalid')`),
+    index('ai_explanation_cache_updated_idx').on(table.updatedAt),
+  ],
+);
+
 export const studyPlans = pgTable(
   'study_plans',
   {
@@ -335,6 +467,8 @@ export const studyPlanTasks = pgTable(
     estimatedMinutes: integer('estimated_minutes'),
     sortOrder: integer('sort_order').notNull().default(0),
     status: text('status').notNull().default('pending'),
+    priority: integer('priority').notNull().default(0),
+    source: text('source').notNull().default('baseline'),
     completedAt: timestampColumn('completed_at'),
     createdAt: timestampColumn('created_at').notNull().defaultNow(),
   },
@@ -409,8 +543,11 @@ export type Section = typeof sections.$inferSelect;
 export type Topic = typeof topics.$inferSelect;
 export type Question = typeof questions.$inferSelect;
 export type PracticeSession = typeof practiceSessions.$inferSelect;
+export type DiagnosticAssessment = typeof diagnosticAssessments.$inferSelect;
+export type DiagnosticResponse = typeof diagnosticResponses.$inferSelect;
 export type PracticeTest = typeof practiceTests.$inferSelect;
 export type TestAttempt = typeof testAttempts.$inferSelect;
 export type StudyPlan = typeof studyPlans.$inferSelect;
 export type StudyPlanTask = typeof studyPlanTasks.$inferSelect;
 export type Achievement = typeof achievements.$inferSelect;
+export type GeneratedQuestionValidation = typeof generatedQuestionValidations.$inferSelect;

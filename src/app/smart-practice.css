@@ -1,0 +1,401 @@
+.smart-page {
+  width: min(100%, 900px);
+  margin: 0 auto;
+  color: var(--color-ink);
+}
+.smart-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+.smart-heading-mark {
+  display: grid;
+  width: 41px;
+  height: 41px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid #dce7d5;
+  border-radius: 13px;
+  background: #edf4e7;
+  color: var(--color-forest);
+}
+.smart-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--color-moss);
+  font-size: 8px;
+  font-weight: 770;
+  letter-spacing: 0.12em;
+}
+.smart-heading h2 {
+  margin: 4px 0 0;
+  color: var(--color-ink);
+  font-size: clamp(25px, 4vw, 34px);
+  font-weight: 660;
+  letter-spacing: -0.05em;
+  line-height: 1.1;
+}
+.smart-heading > div > p:last-child {
+  margin: 7px 0 0;
+  color: var(--color-muted);
+  font-size: 11px;
+  line-height: 1.55;
+}
+.smart-duration-card,
+.smart-plan-card {
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: var(--shadow-sm);
+}
+.smart-duration-card {
+  padding: 17px;
+}
+.smart-card-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.smart-card-heading h3 {
+  margin: 4px 0 0;
+  color: var(--color-ink);
+  font-size: 13px;
+  font-weight: 700;
+}
+.smart-time-icon {
+  display: grid;
+  width: 31px;
+  height: 31px;
+  place-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: 9px;
+  color: var(--color-moss);
+}
+.smart-duration-options {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 9px;
+  margin-top: 15px;
+}
+.smart-duration-option {
+  display: flex;
+  min-width: 0;
+  min-height: 71px;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 3px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--color-ink);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 120ms ease,
+    background 120ms ease,
+    box-shadow 120ms ease;
+}
+button.smart-duration-option:hover,
+.smart-duration-option.is-selected {
+  border-color: #8ca486;
+  background: #f5f8f1;
+}
+.smart-duration-option.is-selected {
+  box-shadow: inset 0 0 0 1px #8ca486;
+}
+.smart-duration-option > strong {
+  font-size: 18px;
+  font-weight: 690;
+  letter-spacing: -0.035em;
+  line-height: 1;
+}
+.smart-duration-option > strong small {
+  color: var(--color-muted);
+  font-size: 9px;
+  font-weight: 560;
+  letter-spacing: 0;
+}
+.smart-duration-option > span {
+  color: var(--color-muted);
+  font-size: 8px;
+}
+.smart-custom-option {
+  gap: 4px;
+  cursor: default;
+}
+.smart-custom-option > label {
+  color: var(--color-muted);
+  font-size: 8px;
+  font-weight: 650;
+}
+.smart-custom-option > div {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.smart-custom-option input {
+  width: 45px;
+  min-height: 24px;
+  padding: 0 4px;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  color: var(--color-ink);
+  font-size: 10px;
+}
+.smart-custom-option > div > span {
+  color: var(--color-muted);
+  font-size: 8px;
+}
+.smart-custom-option button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-moss);
+  font-size: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.smart-plan-card {
+  margin-top: 13px;
+  overflow: hidden;
+}
+.smart-plan-heading {
+  padding: 16px 17px 12px;
+}
+.smart-plan-heading .smart-eyebrow {
+  text-transform: uppercase;
+}
+.smart-plan-heading h3 {
+  font-size: 15px;
+}
+.smart-refresh {
+  display: grid;
+  width: 31px;
+  height: 31px;
+  place-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: 9px;
+  background: #fff;
+  color: var(--color-muted);
+  cursor: pointer;
+}
+.smart-refresh:hover:not(:disabled) {
+  background: var(--color-surface-muted);
+  color: var(--color-ink);
+}
+.smart-refresh:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+.smart-plan-summary {
+  margin: 0;
+  padding: 0 17px 12px;
+  color: var(--color-muted);
+  font-size: 9px;
+  line-height: 1.55;
+}
+.smart-question-list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.smart-question-list li {
+  display: flex;
+  min-width: 0;
+  min-height: 55px;
+  align-items: center;
+  gap: 11px;
+  padding: 8px 17px;
+  border-top: 1px solid #f0f2ee;
+}
+.smart-question-index {
+  display: grid;
+  width: 25px;
+  height: 25px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 8px;
+  background: #f2f5ee;
+  color: var(--color-moss);
+  font-size: 8px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+}
+.smart-question-main {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+  gap: 3px;
+}
+.smart-question-main strong {
+  overflow: hidden;
+  color: var(--color-ink-soft);
+  font-size: 10px;
+  font-weight: 690;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.smart-question-main small {
+  overflow: hidden;
+  color: var(--color-muted);
+  font-size: 8px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.smart-question-score {
+  color: #89958d;
+  font-size: 8px;
+  font-variant-numeric: tabular-nums;
+}
+.smart-plan-footer {
+  display: flex;
+  min-height: 52px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 17px;
+  border-top: 1px solid #e9ede7;
+  background: #fbfcfa;
+}
+.smart-plan-footer > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-muted);
+  font-size: 9px;
+}
+.smart-plan-footer > a {
+  display: inline-flex;
+  min-height: 35px;
+  align-items: center;
+  gap: 7px;
+  padding: 0 11px;
+  border-radius: 8px;
+  background: var(--color-ink);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 690;
+  white-space: nowrap;
+}
+.smart-plan-footer > a:hover {
+  background: var(--color-forest);
+}
+.smart-loading,
+.smart-empty {
+  display: flex;
+  min-height: 125px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 18px;
+  color: var(--color-muted);
+  font-size: 10px;
+  text-align: center;
+}
+.smart-empty svg {
+  color: var(--color-moss);
+}
+.smart-empty strong {
+  color: var(--color-ink);
+  font-size: 11px;
+}
+.smart-empty span {
+  max-width: 300px;
+  font-size: 9px;
+}
+.smart-error {
+  margin: 0;
+  padding: 16px 17px;
+  color: var(--color-danger);
+  font-size: 10px;
+}
+.smart-spin {
+  animation: smart-spin 750ms linear infinite;
+}
+@keyframes smart-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.smart-method-note {
+  display: grid;
+  gap: 4px;
+  margin-top: 13px;
+  padding: 12px 14px;
+  border: 1px solid #e6ebe2;
+  border-radius: 10px;
+  background: #fafbf8;
+}
+.smart-method-note strong {
+  color: var(--color-ink-soft);
+  font-size: 9px;
+}
+.smart-method-note span {
+  color: var(--color-muted);
+  font-size: 8px;
+  line-height: 1.6;
+}
+.smart-footer-link {
+  margin-top: 15px;
+  text-align: center;
+}
+.smart-footer-link a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--color-moss);
+  font-size: 9px;
+  font-weight: 640;
+}
+.smart-footer-link a:hover {
+  color: var(--color-ink);
+}
+@media (max-width: 700px) {
+  .smart-duration-options {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 430px) {
+  .smart-duration-card {
+    padding: 14px;
+  }
+  .smart-duration-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .smart-duration-option {
+    min-height: 63px;
+  }
+  .smart-plan-heading {
+    padding-right: 13px;
+    padding-left: 13px;
+  }
+  .smart-question-list li {
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+  .smart-plan-footer {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 10px 12px;
+  }
+  .smart-plan-footer > a {
+    width: 100%;
+    justify-content: center;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .smart-spin {
+    animation: none;
+  }
+  .smart-duration-option,
+  .smart-plan-footer > a {
+    transition: none;
+  }
+}

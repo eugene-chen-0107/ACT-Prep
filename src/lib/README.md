@@ -1,3 +1,34 @@
-# Infrastructure
+# Server-side services and infrastructure
 
-Server-only adapters for authentication, AI/question providers, and shared utilities will live here. Never import secret-bearing modules into client components.
+Keep server-side adapters and shared services here; never import secret-bearing modules into client components.
+
+## Question providers
+
+`question-provider.ts` defines the unified `QuestionProvider` contract and canonical question shape. Consumers request questions from the provider registry without depending on storage or vendor APIs. The trusted server-side record includes stable IDs/provenance, `section`, `topic`, `subtopic`, `difficulty`, `questionType`, `question`, nullable `passage`, `choices`, `correctAnswer`, `explanation`, `source`, `provider`, `estimatedTimeSeconds`, `tags`, and creation/update timestamps. Student-facing responses must project out `correctAnswer` until submission.
+
+- `LocalQuestionProvider` reads published records from PostgreSQL through a repository and normalizes legacy demo records to `original` when their provenance says `original: true`.
+- `AIQuestionProvider` requires an injected server-side generator, validates the common contract, and labels output `ai_generated`. It is an adapter seam, not wired to an AI vendor.
+- `LicensedApiQuestionProvider` requires an explicit client for an authorized provider API. It does not scrape ACT or competitor sites, and does not access undocumented endpoints.
+- `QuestionProviderRegistry` composes providers. Default queries use available catalog providers and exclude AI generation; explicit source requests select the matching provider. Malformed records, duplicate choice IDs, and answer keys that do not identify a choice are rejected.
+
+Supported source values are `original`, `curated`, `ai_generated`, and `licensed_api`. Keep provider credentials and rights/licensing checks server-side. No question provider may scrape ACT or competitor websites. Add a licensed source by implementing its official licensed API client and mapping results into the unified schema; practice consumers should not need vendor-specific changes.
+
+## Reusable performance analysis
+
+`performance-analysis.ts` calculates metrics from saved `QuestionAttempt`-shaped records without UI dependencies. It aggregates overall, section, topic, subtopic, difficulty, and question type; each group includes total/recent/historical accuracy, attempt/correct counts, average time, distinct questions missed, last practiced, and a mastery estimate. Recent accuracy is the newest 10 attempts. Mastery remains unavailable below 5 attempts; afterward it is `70% × recent accuracy + 30% × historical accuracy`, rounded to a whole percentage. `performance-data.ts` loads only the authenticated user's attempts, and `/api/student/performance` serves the analysis for reuse by adaptive practice. Do not reproduce metric calculations in presentation components.
+
+## Spaced Review
+
+`spaced-review.ts` turns a student's owned, timestamped attempts and saved flags into the `/review` categories without consulting mutable catalog data for historical attempts. It displays snapshot prompt, passage, choices, explanation, student/correct answers, latest date, attempt count, and earlier answer history. Schedule from the latest attempt: an incorrect answer is due in 1 day; successive correct streak positions use 3, 7, then 14 days. Intervals are recalculated deterministically from the attempt history; recent misses use a 7-day window, repeated mistakes mean at least two incorrect attempts, and weakest topics require two attempts and sort by accuracy. No model or external service is involved. `review-data.ts` scopes attempt/flag reads and mutations to the authenticated student.
+
+## Original AI question generation
+
+`ai-question-generation.ts` accepts the structured generation requirements and labels generated content `ai_generated` and `not_official`. `GrokOriginalQuestionGenerator` is server-only and forbids scraping/copying while using structured output with `store: false`. Before `POST /api/student/practice/generate` returns a candidate, `original-question-lifecycle.ts` persists it through GENERATED → VALIDATING and runs deterministic formatting/math/leakage/duplicate checks plus independent semantic review for answer correctness, choice validity, contradictions, ambiguity, topic, difficulty, explanation, leakage, and originality. Passing candidates transition APPROVED → AVAILABLE; failures record checks/errors and transition REJECTED → REGENERATE, then get a bounded fresh generation with feedback. Any review failure or missing reviewer fails closed. Only AVAILABLE output is returned; student practice catalog access remains limited to separately published catalog questions and never reads these validation records. Apply `0008_original_question_validation.sql` before enabling generation with the validation gate.
+
+## AI answer explanations
+
+`ai-explanation.ts` defines a provider-neutral structured contract, validates generated responses, independently checks arithmetic operations/equations, and falls back to the trusted canonical explanation if AI is unavailable, malformed, or mathematically inconsistent. Only after the canonical question is loaded, the selected choice is validated, and the attempt is persisted does `practice-flow.ts` request feedback. The authoritative answer ID/text is always derived from the trusted question record, never from the provider. The Grok adapter uses xAI's structured Responses API with `store: false`; keep `XAI_API_KEY` server-side and optionally set `XAI_EXPLANATION_MODEL`. Cache keys cover version, provider, model, full question/choice set, correct answer, selected answer, and canonical explanation. Validated payloads are stored in the owner-independent `ai_explanation_cache` table, with an in-process in-flight map coalescing concurrent identical requests. Apply the generated migration before enabling this cache in a database-backed deployment.
+
+## Smart Practice
+
+`smart-practice-engine.ts` is a deterministic, provider-agnostic planner. It scores skill weakness/recent-vs-historical accuracy, repeated/recent mistakes, spaced review, response time relative to question estimate, goal urgency from target-score gap and test date, type/section/topic variety, repeated-question avoidance, and difficulty progression. Fixed weights and stable ID tie-breaking make a plan reproducible. Session sizes support 5/10/20/30-minute presets and validated custom 1–120-minute choices; question counts use estimated question time and available provider results. `/api/student/smart-practice` loads the authenticated student's attempts and goals, computes performance through the shared engine, and obtains question candidates through the same `QuestionProvider` registry, leaving later AI questions behind the existing adapter contract. The endpoint projects out `correctAnswer` and `explanation`; only the standard server-side submission flow reveals feedback after saving an attempt.

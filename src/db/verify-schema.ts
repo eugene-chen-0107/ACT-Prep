@@ -10,7 +10,7 @@ async function verifyDatabase() {
   const client = postgres(connectionString, { max: 1, prepare: false });
   try {
     const requiredTables = [
-      'user', 'profiles', 'sections', 'topics', 'questions', 'attempts', 'practice_sessions',
+      'user', 'profiles', 'sections', 'topics', 'questions', 'attempts', 'rate_limit', 'practice_sessions',
       'practice_tests', 'practice_test_questions', 'test_attempts', 'study_plans',
       'study_plan_tasks', 'achievement_catalog', 'achievements',
     ];
@@ -22,6 +22,26 @@ async function verifyDatabase() {
     const foundNames = new Set(found.map((row) => row.table_name));
     const missing = requiredTables.filter((table) => !foundNames.has(table));
     if (missing.length) throw new Error(`Missing migrated tables: ${missing.join(', ')}`);
+
+    const rateLimitColumns = await client<{ column_name: string }[]>`
+      select column_name
+      from information_schema.columns
+      where table_schema = 'public' and table_name = 'rate_limit'
+    `;
+    const rateLimitColumnNames = new Set(rateLimitColumns.map((row) => row.column_name));
+    const expectedRateLimitColumns = ['id', 'key', 'count', 'last_request'];
+    const missingRateLimitColumns = expectedRateLimitColumns.filter((column) => !rateLimitColumnNames.has(column));
+    if (missingRateLimitColumns.length) throw new Error(`Missing Better Auth rate-limit columns: ${missingRateLimitColumns.join(', ')}`);
+
+    const questionColumns = await client<{ column_name: string }[]>`
+      select column_name
+      from information_schema.columns
+      where table_schema = 'public' and table_name = 'questions'
+    `;
+    const questionColumnNames = new Set(questionColumns.map((row) => row.column_name));
+    const expectedQuestionColumns = ['subtopic_id', 'question_type', 'estimated_time_seconds', 'tags'];
+    const missingQuestionColumns = expectedQuestionColumns.filter((column) => !questionColumnNames.has(column));
+    if (missingQuestionColumns.length) throw new Error(`Missing taxonomy/question metadata columns: ${missingQuestionColumns.join(', ')}`);
 
     const attemptColumns = await client<{ column_name: string }[]>`
       select column_name
@@ -55,10 +75,12 @@ async function verifyDatabase() {
       `;
       await transaction`
         insert into questions (
-          id, slug, section_id, topic_id, difficulty, prompt, options,
+          id, slug, section_id, topic_id, subtopic_id, subtopic, difficulty,
+          question_type, estimated_time_seconds, tags, prompt, options,
           correct_answer, explanation, status
         ) values (
-          ${questionId}, ${questionId}, ${sectionId}, ${topicId}, 'easy',
+          ${questionId}, ${questionId}, ${sectionId}, ${topicId}, ${topicId}, 'Example subtopic', 'easy',
+          'multiple_choice', 45, ${transaction.json(['demo', 'verification'])},
           'Original prompt', ${transaction.json([{ id: 'A', text: 'one' }, { id: 'B', text: 'two' }])},
           'B', 'Original explanation', 'published'
         )
@@ -70,13 +92,13 @@ async function verifyDatabase() {
         ) values (
           ${attemptId}, ${userId}, ${questionId}, 'A', 'B', false,
           19, 'Math', 'Algebra', 'Linear equations', 'easy',
-          ${transaction.json({ prompt: 'Frozen prompt', options: [{ id: 'A', text: 'one' }, { id: 'B', text: 'two' }] })}
+          ${transaction.json({ prompt: 'Frozen prompt', options: [{ id: 'A', text: 'one' }, { id: 'B', text: 'two' }], questionType: 'multiple_choice', estimatedTimeSeconds: 45, tags: ['demo', 'verification'], source: 'original' })}
         )
       `;
-      const persisted = await transaction<{ correct_answer: string; question_snapshot: { prompt: string } }[]>`
+      const persisted = await transaction<{ correct_answer: string; question_snapshot: { prompt: string; source?: string } }[]>`
         select correct_answer, question_snapshot from attempts where id = ${attemptId}
       `;
-      if (persisted.length !== 1 || persisted[0].correct_answer !== 'B' || persisted[0].question_snapshot.prompt !== 'Frozen prompt') {
+      if (persisted.length !== 1 || persisted[0].correct_answer !== 'B' || persisted[0].question_snapshot.prompt !== 'Frozen prompt' || persisted[0].question_snapshot.source !== 'original') {
         throw new Error('Attempt snapshot did not persist correctly.');
       }
       const questionForeignKey = await transaction<{ constraint_name: string }[]>`
@@ -97,21 +119,21 @@ async function verifyDatabase() {
         set prompt = 'Edited prompt', correct_answer = 'A', status = 'retired'
         where id = ${questionId}
       `;
-      const afterRetirement = await transaction<{ question_id: string; correct_answer: string; question_snapshot: { prompt: string } }[]>`
+      const afterRetirement = await transaction<{ question_id: string; correct_answer: string; question_snapshot: { prompt: string; source?: string } }[]>`
         select question_id, correct_answer, question_snapshot from attempts where id = ${attemptId}
       `;
       if (
         afterRetirement.length !== 1 ||
         afterRetirement[0].question_id !== questionId ||
         afterRetirement[0].correct_answer !== 'B' ||
-        afterRetirement[0].question_snapshot.prompt !== 'Frozen prompt'
+        afterRetirement[0].question_snapshot.prompt !== 'Frozen prompt' || afterRetirement[0].question_snapshot.source !== 'original'
       ) throw new Error('Editing/retiring a question changed its historical attempt snapshot.');
       throw new Error('ROLLBACK_DB_VERIFICATION_TRANSACTION');
     }).catch((error: unknown) => {
       if (!(error instanceof Error) || error.message !== 'ROLLBACK_DB_VERIFICATION_TRANSACTION') throw error;
     });
 
-    console.info(`Database verification passed: ${requiredTables.length} tables exist and attempt history remains independent of question rows.`);
+    console.info(`Database verification passed: ${requiredTables.length} tables exist, question taxonomy metadata is present, and attempt history remains independent of question rows.`);
   } finally {
     await client.end();
   }

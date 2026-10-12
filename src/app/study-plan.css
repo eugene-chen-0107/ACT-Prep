@@ -1,0 +1,59 @@
+.study-plan-page{width:min(100%,1000px);margin:0 auto;color:var(--color-ink)}
+.study-plan-heading{display:flex;align-items:flex-start;gap:14px;margin-bottom:20px}
+.study-plan-heading>span{display:grid;place-items:center;width:42px;height:42px;flex:none;border:1px solid #dce7d5;border-radius:13px;background:#edf4e7;color:var(--color-forest)}
+.study-plan-heading p,.study-plan-week-heading p{margin:0;color:var(--color-moss);font-size:8px;font-weight:780;letter-spacing:.12em}
+.study-plan-heading h1{margin:4px 0;font-size:clamp(25px,4vw,34px);letter-spacing:-.05em;line-height:1.1}
+.study-plan-heading small{color:var(--color-muted);font-size:10px;line-height:1.5}
+.study-plan-card{padding:18px;border:1px solid var(--color-border);border-radius:14px;background:#fff;box-shadow:var(--shadow-sm)}
+.study-plan-card-heading{display:flex;align-items:flex-start;gap:10px;color:var(--color-moss)}
+.study-plan-card-heading h2{margin:0;color:var(--color-ink);font-size:14px}
+.study-plan-card-heading p{margin:4px 0 0;color:var(--color-muted);font-size:10px}
+.study-plan-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:17px}
+.study-plan-form-grid label{display:grid;gap:5px;color:var(--color-ink-soft);font-size:10px;font-weight:650}
+.study-plan-form-grid input{min-height:38px;padding:0 10px;border:1px solid var(--color-border-strong);border-radius:8px;background:white;color:var(--color-ink);font-size:11px}
+.study-plan-days{display:flex;flex-wrap:wrap;gap:8px;margin:15px 0 0;padding:0;border:0}
+.study-plan-days legend{width:100%;margin-bottom:6px;color:var(--color-ink-soft);font-size:10px;font-weight:650}
+.study-plan-days label{display:flex;align-items:center;gap:5px;padding:7px 9px;border:1px solid var(--color-border);border-radius:7px;color:var(--color-muted);font-size:9px;cursor:pointer}
+.study-plan-days label:has(input:checked){border-color:#9caf94;background:#f2f6ee;color:var(--color-forest)}
+.study-plan-days input{accent-color:var(--color-moss)}
+.study-plan-primary,.study-plan-week-heading button{display:inline-flex;min-height:37px;align-items:center;justify-content:center;gap:7px;padding:0 12px;border:0;border-radius:8px;background:var(--color-ink);color:white;font-size:10px;font-weight:680;cursor:pointer}
+.study-plan-primary{margin-top:15px}
+.study-plan-primary:disabled,.study-plan-week-heading button:disabled{opacity:.5;cursor:wait}
+.study-plan-progress-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:15px}
+.study-plan-progress-card,.study-plan-goal{display:grid;gap:5px;padding:13px;border:1px solid var(--color-border);border-radius:11px;background:#fff}
+.study-plan-progress-card>span,.study-plan-goal>span{color:var(--color-muted);font-size:8px;font-weight:760;letter-spacing:.09em}
+.study-plan-progress-card>strong,.study-plan-goal>strong{color:var(--color-forest);font-size:22px;line-height:1}
+.study-plan-progress-card>small,.study-plan-goal>small{color:var(--color-muted);font-size:8px}
+.study-plan-progress-card>div{height:4px;overflow:hidden;margin-top:3px;border-radius:99px;background:#e9eee6}
+.study-plan-progress-card i{display:block;height:100%;border-radius:inherit;background:var(--color-moss)}
+.study-plan-goal>span{display:flex;align-items:center;gap:5px;color:var(--color-moss)}
+.study-plan-week-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:23px}
+.study-plan-week-heading h2{margin:4px 0 0;font-size:15px}
+.study-plan-week-heading button{min-height:33px;background:#f0f4ed;color:var(--color-forest)}
+.study-plan-adaptive-note{margin:7px 0 12px;color:var(--color-muted);font-size:9px;line-height:1.5}
+.study-plan-days-list{display:grid;gap:9px}
+.study-plan-day{overflow:hidden;border:1px solid var(--color-border);border-radius:10px;background:white}
+.study-plan-day>header{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:#f7f9f5}
+.study-plan-day>header span{font-size:10px;font-weight:720}
+.study-plan-day>header small{color:var(--color-muted);font-size:8px}
+.study-plan-task{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border-top:1px solid #f0f2ee}
+.study-plan-task-copy{display:grid;min-width:0;gap:3px}
+.study-plan-task-copy strong{font-size:10px}
+.study-plan-task-copy small{color:var(--color-muted);font-size:8px;line-height:1.45}
+.study-plan-task-copy>span{display:flex;align-items:center;gap:4px;color:var(--color-moss);font-size:8px}
+.study-plan-task.is-completed .study-plan-task-copy strong{text-decoration:line-through;color:var(--color-muted)}
+.study-plan-task.is-skipped .study-plan-task-copy{opacity:.55}
+.study-plan-task-actions{display:flex;flex:none;align-items:center;gap:5px}
+.study-plan-task-actions button{display:inline-flex;min-width:28px;height:28px;align-items:center;justify-content:center;gap:4px;padding:0 6px;border:1px solid var(--color-border);border-radius:6px;background:white;color:var(--color-ink-soft);font-size:8px;cursor:pointer}
+.study-plan-task-actions button:hover{background:#f0f5ed}
+.study-plan-task-actions label{position:relative;display:flex;width:28px;height:28px;align-items:center;justify-content:center;border:1px solid var(--color-border);border-radius:6px;color:var(--color-muted);cursor:pointer}
+.study-plan-task-actions label input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.study-plan-complete,.study-plan-skipped{display:flex;align-items:center;gap:3px;color:var(--color-success);font-size:8px}
+.study-plan-skipped{color:var(--color-muted)}
+.study-plan-rest{margin:0;padding:12px;color:var(--color-muted);font-size:9px}
+.study-plan-loading{display:flex;min-height:180px;align-items:center;justify-content:center;gap:8px;color:var(--color-muted);font-size:11px}
+.study-plan-error{padding:9px 11px;border:1px solid #eed4d0;border-radius:8px;background:var(--color-danger-bg);color:var(--color-danger);font-size:10px}
+.study-plan-spin{animation:study-plan-spin .8s linear infinite}
+@keyframes study-plan-spin{to{transform:rotate(360deg)}}
+@media(max-width:600px){.study-plan-form-grid{grid-template-columns:1fr}.study-plan-progress-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.study-plan-week-heading{align-items:flex-start;flex-direction:column}.study-plan-week-heading button{width:100%}.study-plan-task{align-items:flex-start;flex-direction:column}.study-plan-task-actions{align-self:flex-end}}
+@media(prefers-reduced-motion:reduce){.study-plan-spin{animation:none}}

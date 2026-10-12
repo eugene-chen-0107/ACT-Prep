@@ -1,9 +1,7 @@
-import { AppPagePlaceholder } from '@/components/app-page-placeholder';
-import { getNavigationItem } from '@/components/app-navigation';
+import { StudentDashboard } from '@/components/student-dashboard';
+import { getStudentDashboard } from '@/lib/dashboard-data';
 
-const dashboard = getNavigationItem('/dashboard');
-
-export default function DashboardPage() {
-  if (!dashboard) return null;
-  return <AppPagePlaceholder item={dashboard} />;
+export default async function DashboardPage() {
+  const data = await getStudentDashboard();
+  return <StudentDashboard data={data} />;
 }

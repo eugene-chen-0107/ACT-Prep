@@ -29,6 +29,62 @@
       "when": 1790215604343,
       "tag": "0003_cold_union_jack",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790301369951,
+      "tag": "0004_add_question_metadata",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790346852360,
+      "tag": "0005_high_anthem",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790915493040,
+      "tag": "0006_solid_hercules",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1790916736750,
+      "tag": "0007_clumsy_luckman",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1791664291197,
+      "tag": "0008_original_question_validation",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1791666213720,
+      "tag": "0009_diagnostic_assessment",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1791668740803,
+      "tag": "0010_adaptive_study_plan_tasks",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1791673813311,
+      "tag": "0011_configurable_practice_tests",
+      "breakpoints": true
     }
   ]
 }

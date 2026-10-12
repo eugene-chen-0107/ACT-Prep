@@ -1,13 +1,18 @@
 import { NextResponse } from 'next/server';
-import { headers } from 'next/headers';
-import { getAuth } from '@/lib/auth';
-import { listMyProgress } from '@/lib/student-data';
+import { getMyProgressAnalytics } from '@/lib/progress-data';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  const session = await getAuth().api.getSession({ headers: await headers() });
-  if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  return NextResponse.json({ progress: await listMyProgress() }, { headers: { 'Cache-Control': 'private, no-store' } });
+  try {
+    const analytics = await getMyProgressAnalytics();
+    return NextResponse.json({ analytics }, { headers: { 'Cache-Control': 'private, no-store' } });
+  } catch (error) {
+    if (error instanceof Error && error.message === 'Authentication required.') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    console.error('Could not load student progress analytics.');
+    return NextResponse.json({ error: 'Could not load progress analytics.' }, { status: 500 });
+  }
 }

@@ -5,6 +5,7 @@ import {
   BrainCircuit,
   ChartNoAxesCombined,
   ClipboardList,
+  ClipboardCheck,
   Compass,
   GraduationCap,
   House,
@@ -24,10 +25,11 @@ export type AppNavigationItem = {
 export const primaryNavigation: AppNavigationItem[] = [
   { label: 'Dashboard', href: '/dashboard', icon: House, description: 'Your preparation at a glance' },
   { label: 'Smart Practice', href: '/smart-practice', icon: BrainCircuit, description: 'Adaptive practice for your goals' },
+  { label: 'Diagnostic', href: '/diagnostic', icon: ClipboardCheck, description: 'Estimate your strengths across ACT sections' },
   { label: 'Practice', href: '/practice', icon: BookOpenCheck, description: 'Practice by ACT section' },
   { label: 'Tests', href: '/tests', icon: ClipboardList, description: 'Full-length and timed tests' },
   { label: 'Review', href: '/review', icon: Activity, description: 'Learn from missed questions' },
-  { label: 'Progress', href: '/progress', icon: ChartNoAxesCombined, description: 'Your progress over time' },
+  { label: 'Performance', href: '/progress', icon: ChartNoAxesCombined, description: 'Your performance by ACT skill' },
   { label: 'Study Plan', href: '/study-plan', icon: GraduationCap, description: 'A plan built around your schedule' },
 ];
 

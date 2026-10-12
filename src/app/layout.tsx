@@ -4,6 +4,15 @@ import './design-system/design-system.css';
 import '@/components/app-shell.css';
 import './landing.css';
 import './auth.css';
+import './practice.css';
+import './dashboard.css';
+import './performance.css';
+import './progress.css';
+import './smart-practice.css';
+import './diagnostic.css';
+import './study-plan.css';
+import './tests.css';
+import './review.css';
 
 export const metadata: Metadata = {
   title: 'Northstar ACT — Prepare smarter. Raise your ACT score.',
